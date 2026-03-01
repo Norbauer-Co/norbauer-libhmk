@@ -49,9 +49,19 @@ int main(void) {
 
   tud_init(BOARD_TUD_RHPORT);
 
-  timer_buzzer_start();
-  timer_delay(1000);
-  timer_buzzer_stop();
+  if (eeconfig->current_profile == 0) {
+    timer_buzzer_start();
+    timer_delay(1000);
+    timer_buzzer_stop();
+  } else if (eeconfig->current_profile == 1) {
+    for (uint8_t i = 0; i < 3; i++) {
+      timer_buzzer_start();
+      timer_delay(100);
+      timer_buzzer_stop();
+      if (i < 2)
+        timer_delay(100);
+    }
+  }
   
   while (1) {
     tud_task();
