@@ -30,6 +30,9 @@ static uint16_t layer_mask;
 static uint8_t default_layer;
 
 static void layout_play_profile_buzzer(uint8_t profile) {
+  if (eeconfig->options.profile_tones_disabled)
+    return;
+
   if (profile == 0) {
     timer_buzzer_start();
     timer_delay(1000);
