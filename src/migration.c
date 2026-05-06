@@ -350,8 +350,14 @@ bool v1_5_global_config_func(uint8_t *dst, const uint8_t *src) {
     // Expected version v1.4
     return false;
 
-  // Copy the entire global configuration.
-  migration_memcpy(&dst, &src, MIGRATION_V1_5_GLOBAL_CONFIG_SIZE);
+  // Copy `magic_start` to `bottom_out_threshold`
+  migration_memcpy(&dst, &src, 10 + NUM_KEYS * 2);
+  // Default `profile_tones_disabled` to false
+  uint16_t options = *((uint16_t *)src) & ~(1 << 3);
+  migration_assign_uint16_t(&dst, options);
+  src += sizeof(options);
+  // Copy `current_profile` to `last_non_default_profile`
+  migration_memcpy(&dst, &src, 2);
 
   return true;
 }
@@ -369,7 +375,7 @@ bool v1_5_profile_config_func(uint8_t profile, uint8_t *dst,
     migration_memcpy(&dst, &src, MIGRATION_V1_0_ADVANCED_KEY_SIZE);
     migration_memset(&dst, 0,
                      MIGRATION_V1_5_ADVANCED_KEY_SIZE -
-                         MIGRATION_V1_5_ADVANCED_KEY_SIZE);
+                         MIGRATION_V1_0_ADVANCED_KEY_SIZE);
   }
 
   // Copy the remaining profile fields.

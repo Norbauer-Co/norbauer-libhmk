@@ -29,6 +29,25 @@
 static uint16_t layer_mask;
 static uint8_t default_layer;
 
+static void layout_play_profile_buzzer(uint8_t profile) {
+  if (eeconfig->options.profile_tones_disabled)
+    return;
+
+  if (profile == 0) {
+    timer_buzzer_start();
+    timer_delay(1000);
+    timer_buzzer_stop();
+  } else if (profile == 1) {
+    for (uint8_t i = 0; i < 3; i++) {
+      timer_buzzer_start();
+      timer_delay(100);
+      timer_buzzer_stop();
+      if (i < 2)
+        timer_delay(100);
+    }
+  }
+}
+
 /**
  * @brief Get the current layer
  *
@@ -252,11 +271,17 @@ static bool layout_set_profile(uint8_t profile) {
   if (profile >= NUM_PROFILES)
     return false;
 
+  const uint8_t previous_profile = eeconfig->current_profile;
+  if (previous_profile == profile)
+    return true;
+
   advanced_key_clear();
   bool status = EECONFIG_WRITE(current_profile, &profile);
   if (status && profile != 0)
     status = EECONFIG_WRITE(last_non_default_profile, &profile);
   layout_load_advanced_keys();
+  if (status)
+    layout_play_profile_buzzer(profile);
 
   return status;
 }

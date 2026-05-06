@@ -51,8 +51,10 @@ typedef union __attribute__((packed)) {
     // Whether 8kHz polling rate is enabled. Only applicable if USB HS is
     // enabled. If disabled, the 1kHz polling rate is used instead.
     bool high_polling_rate_enabled : 1;
+    // Whether profile-related startup/runtime tones are disabled
+    bool profile_tones_disabled : 1;
     // Reserved bits for future use
-    uint16_t reserved : 13;
+    uint16_t reserved : 12;
   };
   uint16_t raw;
 } eeconfig_options_t;
@@ -128,6 +130,7 @@ extern const eeconfig_t *eeconfig;
   {                                                                            \
       .xinput_enabled = false,                                                 \
       .high_polling_rate_enabled = true,                                       \
+      .profile_tones_disabled = false,                                         \
   }
 #endif
 
