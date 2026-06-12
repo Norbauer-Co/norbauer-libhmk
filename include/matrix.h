@@ -40,6 +40,13 @@
 #define MATRIX_CALIBRATION_EPSILON 5
 #endif
 
+#if !defined(MATRIX_ACTUATION_HYSTERESIS)
+// Distance below the actuation point that a regular key must return to before
+// it is considered released. This stabilizes slow presses near the actuation
+// point without adding debounce latency.
+#define MATRIX_ACTUATION_HYSTERESIS 4
+#endif
+
 #if !defined(MATRIX_INACTIVITY_TIMEOUT)
 // Inactivity timeout in milliseconds. Bottom-out threshold will be saved after
 // there is no change to the threshold of any key for this duration.

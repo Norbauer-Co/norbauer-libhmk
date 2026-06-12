@@ -48,6 +48,18 @@ key_state_t key_matrix[NUM_KEYS];
 // Bitmap for tracking which keys have Rapid Trigger disabled
 static bitmap_t rapid_trigger_disabled[] = MAKE_BITMAP(NUM_KEYS);
 
+static bool matrix_is_pressed(uint8_t distance, uint8_t actuation_point,
+                              bool was_pressed) {
+  if (!was_pressed)
+    return distance >= actuation_point;
+
+  const uint8_t release_point =
+      actuation_point > MATRIX_ACTUATION_HYSTERESIS
+          ? actuation_point - MATRIX_ACTUATION_HYSTERESIS
+          : 0;
+  return distance > release_point;
+}
+
 void matrix_init(void) { matrix_recalibrate(false); }
 
 void matrix_recalibrate(bool reset_bottom_out_threshold) {
@@ -115,7 +127,8 @@ void matrix_scan(void) {
     if (bitmap_get(rapid_trigger_disabled, i) | (actuation->rt_down == 0)) {
       key_matrix[i].key_dir = KEY_DIR_INACTIVE;
       key_matrix[i].is_pressed =
-          (key_matrix[i].distance >= actuation->actuation_point);
+          matrix_is_pressed(key_matrix[i].distance, actuation->actuation_point,
+                            key_matrix[i].is_pressed);
     } else {
       const uint8_t reset_point =
           actuation->continuous ? 0 : actuation->actuation_point;
